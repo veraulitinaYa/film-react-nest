@@ -1,4 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('films')
-export class FilmsController {}
+export class FilmsController {
+  @Get()
+  findAll() {
+    return { message: 'films ok' };
+  }
+}
