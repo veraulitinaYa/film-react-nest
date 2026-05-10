@@ -1,21 +1,46 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schedule, ScheduleSchema } from './schedule.schema';
+import { Document } from 'mongoose';
 
-@Schema({
-  collection: 'films',
-  timestamps: true,
-})
-export class Film {
-  @Prop({ required: true, unique: true })
+export type FilmDocument = Film & Document;
+
+@Schema()
+export class Schedule {
+  @Prop()
   id: string;
 
-  @Prop({ required: true })
+  @Prop()
+  daytime: string;
+
+  @Prop()
+  hall: number;
+
+  @Prop()
+  rows: number;
+
+  @Prop()
+  seats: number;
+
+  @Prop()
+  price: number;
+
+  @Prop([String])
+  taken: string[];
+}
+
+const ScheduleSchema = SchemaFactory.createForClass(Schedule);
+
+@Schema()
+export class Film {
+  @Prop()
+  id: string;
+
+  @Prop()
   rating: number;
 
-  @Prop({ required: true })
+  @Prop()
   director: string;
 
-  @Prop({ type: [String], default: [] })
+  @Prop([String])
   tags: string[];
 
   @Prop()
@@ -24,7 +49,7 @@ export class Film {
   @Prop()
   cover: string;
 
-  @Prop({ required: true })
+  @Prop()
   title: string;
 
   @Prop()
@@ -33,10 +58,7 @@ export class Film {
   @Prop()
   description: string;
 
-  @Prop({
-    type: [ScheduleSchema],
-    default: [],
-  })
+  @Prop({ type: [ScheduleSchema] })
   schedule: Schedule[];
 }
 

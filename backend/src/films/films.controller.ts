@@ -1,9 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
+import { FilmsService } from './films.service';
 
 @Controller('films')
 export class FilmsController {
+  constructor(private readonly filmsService: FilmsService) {}
+
   @Get()
-  findAll() {
-    return { message: 'films ok' };
+  async findAll() {
+    return this.filmsService.findAll();
+  }
+
+  @Get(':id/schedule')
+  async findSchedule(@Param('id') id: string) {
+    return this.filmsService.findSchedule(id);
   }
 }
