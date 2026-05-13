@@ -5,13 +5,24 @@ import { FilmsService } from './films.service';
 export class FilmsController {
   constructor(private readonly filmsService: FilmsService) {}
 
-  @Get()
-  async findAll() {
-    return this.filmsService.findAll();
-  }
+@Get()
+async findAll() {
+  const films = await this.filmsService.findAll();
 
-  @Get(':id/schedule')
-  async findSchedule(@Param('id') id: string) {
-    return this.filmsService.findSchedule(id);
-  }
+  return {
+    total: films.length,
+    items: films,
+  };
 }
+
+@Get(':id/schedule')
+async findSchedule(@Param('id') id: string) {
+  const schedule = await this.filmsService.findSchedule(id);
+
+  return {
+    total: schedule.length,
+    items: schedule,
+  };
+}
+}
+
