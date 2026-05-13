@@ -1,27 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Ticket, TicketSchema } from './ticket.schema';
 
 export type OrderDocument = Order & Document;
 
 @Schema()
 export class Order {
-  @Prop()
-  film: string;
+  @Prop() email: string;
 
-  @Prop()
-  session: string;
+  @Prop() phone: string;
 
-  @Prop()
-  daytime: string;
-
-  @Prop()
-  row: number;
-
-  @Prop()
-  seat: number;
-
-  @Prop()
-  price: number;
+  @Prop({ type: [TicketSchema], default: [] })
+  tickets: Ticket[];
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

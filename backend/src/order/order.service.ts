@@ -16,43 +16,37 @@ export class OrderService {
     private filmModel: Model<FilmDocument>,
   ) {}
 
-  async create(dto: CreateOrderDto) {
-    const film = await this.filmModel.findOne({ id: dto.film });
+ async create(dto: CreateOrderDto) {
+  for (const ticket of dto.tickets) {
+    const film = await this.filmModel.findOne({ id: ticket.film });
 
-    if (!film) {
-      throw new BadRequestException('Film not found');
-    }
+    if (!film) throw new BadRequestException('Film not found');
 
     const session = film.schedule.find(
-      (s) => s.id === dto.session,
+      (s) => s.id === ticket.session,
     );
 
-    if (!session) {
-      throw new BadRequestException('Session not found');
-    }
+    if (!session) throw new BadRequestException('Session not found');
 
-    const place = `${dto.row}:${dto.seat}`;
+    const place = `${ticket.row}:${ticket.seat}`;
 
     if (session.taken.includes(place)) {
       throw new BadRequestException('Seat already taken');
     }
 
     session.taken.push(place);
-
     await film.save();
-
-    const order = new this.orderModel(dto);
-    await order.save();
-
-    return order;
   }
 
-  async getAll() {
-    const items = await this.orderModel.find();
+  const order = await this.orderModel.create({
+    email: dto.email,
+    phone: dto.phone,
+    tickets: dto.tickets,
+  });
 
-    return {
-      total: items.length,
-      items,
-    };
-  }
+  return {
+    total: order.tickets.length,
+    items: [toOrderResponse(order)],
+  };
+}
 }
