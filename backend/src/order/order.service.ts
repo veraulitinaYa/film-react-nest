@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { Order, OrderDocument } from './schemas/order.schema';
 import { Film, FilmDocument } from '../films/schemas/film.schema';
 import { CreateOrderDto } from './dto/order.dto';
+import { toOrderResponse } from './mappers/order.mapper';
 
 @Injectable()
 export class OrderService {
@@ -47,6 +48,15 @@ export class OrderService {
   return {
     total: order.tickets.length,
     items: [toOrderResponse(order)],
+  };
+}
+
+async getAll() {
+  const items = await this.orderModel.find();
+
+  return {
+    total: items.length,
+    items: items.map(toOrderResponse),
   };
 }
 }
