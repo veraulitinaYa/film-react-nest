@@ -23,7 +23,7 @@ import { OrderModule } from './order/order.module';
     }),
 
     ServeStaticModule.forRoot({
-      rootPath: path.join(__dirname, '..', 'public'),
+      rootPath: path.join(__dirname, '..', 'public/content/afisha'),
       serveRoot: '/content/afisha',
     }),
 
