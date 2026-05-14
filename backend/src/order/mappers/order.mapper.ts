@@ -3,7 +3,7 @@ import { TicketResponseDto } from '../dto/ticketresponse.dto';
 
 export function toTicketResponse(ticket: any): TicketResponseDto {
   return {
-    id: ticket.id,
+    id: ticket.id ?? ticket._id?.toString(),
     film: ticket.film,
     session: ticket.session,
     daytime: ticket.daytime,
