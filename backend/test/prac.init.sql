@@ -38,4 +38,30 @@ create table public.schedules
 alter table public.schedules
     owner to exampleuser;
 
+CREATE TABLE public.orders (
+    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    email varchar NOT NULL,
+    phone varchar NOT NULL
+);
+
+alter table public.orders
+    owner to exampleuser;
+
+CREATE TABLE public.tickets (
+    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+
+    film varchar NOT NULL,
+    session varchar NOT NULL,
+
+    row integer NOT NULL,
+    seat integer NOT NULL,
+
+    price double precision NOT NULL,
+
+    "orderId" uuid REFERENCES public.orders(id)
+);
+
+alter table public.tickets
+    owner to exampleuser;
+
 
