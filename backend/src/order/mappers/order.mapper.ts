@@ -1,8 +1,10 @@
 import { OrderResponseDto } from '../dto/orderresponse.dto';
 
 import { TicketResponseDto } from '../dto/ticketresponse.dto';
+import { OrderEntity } from '../entities/order.entity';
+import { TicketEntity } from '../entities/ticket.entity';
 
-export function toTicketResponse(ticket: any): TicketResponseDto {
+export function toTicketResponse(ticket: TicketEntity): TicketResponseDto {
   return {
     id: ticket.id,
 
@@ -20,7 +22,7 @@ export function toTicketResponse(ticket: any): TicketResponseDto {
   };
 }
 
-export function toOrderResponse(order: any): OrderResponseDto {
+export function toOrderResponse(order: OrderEntity): OrderResponseDto {
   return {
     id: order.id,
 

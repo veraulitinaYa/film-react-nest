@@ -31,6 +31,9 @@ export class OrderService {
   ) {}
 
   async create(dto: CreateOrderDto) {
+
+    const preparedTickets: Partial<TicketEntity>[] = [];
+
     for (const ticket of dto.tickets) {
       const film = await this.filmRepository.findOne({
         where: {
@@ -61,7 +64,16 @@ export class OrderService {
       session.taken.push(place);
 
       await this.scheduleRepository.save(session);
-    }
+    
+
+
+    preparedTickets.push({
+      ...ticket,
+
+      daytime: session.daytime,
+    });
+  }
+
 
     const order = this.orderRepository.create({
       email: dto.email,
@@ -70,10 +82,10 @@ export class OrderService {
 
     const savedOrder = await this.orderRepository.save(order);
 
-    const tickets = dto.tickets.map((ticket) =>
+    const tickets = preparedTickets.map((ticket) =>
       this.ticketRepository.create({
         ...ticket,
-
+        
         order: savedOrder,
       }),
     );

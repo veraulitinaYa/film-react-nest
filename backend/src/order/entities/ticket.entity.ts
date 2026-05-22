@@ -20,6 +20,9 @@ export class TicketEntity {
   session: string;
 
   @Column()
+  daytime: string;
+
+  @Column()
   row: number;
 
   @Column()

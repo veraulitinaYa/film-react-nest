@@ -52,6 +52,7 @@ CREATE TABLE public.tickets (
 
     film varchar NOT NULL,
     session varchar NOT NULL,
+    daytime varchar NOT NULL,
 
     row integer NOT NULL,
     seat integer NOT NULL,
