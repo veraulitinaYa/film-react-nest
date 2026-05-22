@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
@@ -25,6 +25,10 @@ export class FilmsService {
       relations: ['schedule'],
     });
 
-    return film?.schedule ?? [];
+    if (!film) {
+      throw new NotFoundException('Film not found');
+    }
+
+    return film.schedule;
   }
 }
