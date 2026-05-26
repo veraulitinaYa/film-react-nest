@@ -1,62 +1,121 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 
-import { Order, OrderDocument } from './schemas/order.schema';
-import { Film, FilmDocument } from '../films/schemas/film.schema';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { Repository } from 'typeorm';
+
 import { CreateOrderDto } from './dto/order.dto';
+
 import { toOrderResponse } from './mappers/order.mapper';
+
+import { OrderEntity } from './entities/order.entity';
+import { TicketEntity } from './entities/ticket.entity';
+
+import { FilmEntity } from '../films/entities/film.entity';
+import { ScheduleEntity } from '../films/entities/schedule.entity';
 
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectModel(Order.name)
-    private orderModel: Model<OrderDocument>,
+    @InjectRepository(OrderEntity)
+    private readonly orderRepository: Repository<OrderEntity>,
 
-    @InjectModel(Film.name)
-    private filmModel: Model<FilmDocument>,
+    @InjectRepository(TicketEntity)
+    private readonly ticketRepository: Repository<TicketEntity>,
+
+    @InjectRepository(FilmEntity)
+    private readonly filmRepository: Repository<FilmEntity>,
+
+    @InjectRepository(ScheduleEntity)
+    private readonly scheduleRepository: Repository<ScheduleEntity>,
   ) {}
 
- async create(dto: CreateOrderDto) {
-  for (const ticket of dto.tickets) {
-    const film = await this.filmModel.findOne({ id: ticket.film });
+  async create(dto: CreateOrderDto) {
 
-    if (!film) throw new BadRequestException('Film not found');
+    const preparedTickets: Partial<TicketEntity>[] = [];
 
-    const session = film.schedule.find(
-      (s) => s.id === ticket.session,
-    );
+    for (const ticket of dto.tickets) {
+      const film = await this.filmRepository.findOne({
+        where: {
+          id: ticket.film,
+        },
 
-    if (!session) throw new BadRequestException('Session not found');
+        relations: ['schedule'],
+      });
 
-    const place = `${ticket.row}:${ticket.seat}`;
+      if (!film) {
+        throw new BadRequestException('Film not found');
+      }
 
-    if (session.taken.includes(place)) {
-      throw new BadRequestException('Seat already taken');
-    }
+      const session = film.schedule.find(
+        (s) => s.id === ticket.session,
+      );
 
-    session.taken.push(place);
-    await film.save();
+      if (!session) {
+        throw new BadRequestException('Session not found');
+      }
+
+      const place = `${ticket.row}:${ticket.seat}`;
+
+      if (session.taken.includes(place)) {
+        throw new BadRequestException('Seat already taken');
+      }
+
+      session.taken.push(place);
+
+      await this.scheduleRepository.save(session);
+    
+
+
+    preparedTickets.push({
+      ...ticket,
+
+      daytime: session.daytime,
+    });
   }
 
-  const order = await this.orderModel.create({
-    email: dto.email,
-    phone: dto.phone,
-    tickets: dto.tickets,
-  });
 
-  return {
-    total: order.tickets.length,
-    items: [toOrderResponse(order)],
-  };
-}
+    const order = this.orderRepository.create({
+      email: dto.email,
+      phone: dto.phone,
+    });
 
-async getAll() {
-  const items = await this.orderModel.find();
+    const savedOrder = await this.orderRepository.save(order);
 
-  return {
-    total: items.length,
-    items: items.map(toOrderResponse),
-  };
-}
+    const tickets = preparedTickets.map((ticket) =>
+      this.ticketRepository.create({
+        ...ticket,
+        
+        order: savedOrder,
+      }),
+    );
+
+    await this.ticketRepository.save(tickets);
+
+    const fullOrder = await this.orderRepository.findOne({
+      where: {
+        id: savedOrder.id,
+      },
+
+      relations: ['tickets'],
+    });
+
+    return {
+      total: fullOrder?.tickets.length ?? 0,
+
+      items: fullOrder ? [toOrderResponse(fullOrder)] : [],
+    };
+  }
+
+  async getAll() {
+    const items = await this.orderRepository.find({
+      relations: ['tickets'],
+    });
+
+    return {
+      total: items.length,
+
+      items: items.map(toOrderResponse),
+    };
+  }
 }
