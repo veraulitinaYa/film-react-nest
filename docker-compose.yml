@@ -1,21 +1,49 @@
-version: '3.9'
-
 services:
   postgres:
     image: postgres:16
-    container_name: postgres_container
-    restart: always
-
+    container_name: film-postgres
     environment:
       POSTGRES_USER: exampleuser
       POSTGRES_PASSWORD: examplepassword
       POSTGRES_DB: exampledb
-
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exampleuser"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  backend:
+    build: ./backend
+    container_name: film-backend
+    environment:
+      DATABASE_DRIVER: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: exampleuser
+      DATABASE_PASSWORD: examplepassword
+      DATABASE_NAME: exampledb
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
-volumes:
-  postgres_data:
+  frontend:
+    build: ./frontend
+    container_name: film-frontend
+    depends_on:
+      - backend
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    container_name: film-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
