@@ -47,6 +47,8 @@ services:
     container_name: film-nginx
     ports:
       - "80:80"
+    volumes:
+      - ./backend/public/content/afisha:/usr/share/nginx/html/content/afisha:ro
     depends_on:
       - backend
       - frontend
