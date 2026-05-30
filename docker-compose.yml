@@ -18,6 +18,7 @@ services:
 
   backend:
     build: ./backend
+    image: ghcr.io/veraulitinaYa/film-backend:latest
     container_name: film-backend
 
     environment:
@@ -36,6 +37,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: ghcr.io/veraulitinaYa/film-frontend:latest
     container_name: film-frontend
     depends_on:
       - backend
@@ -44,6 +46,7 @@ services:
     build:
       context: .
       dockerfile: nginx/Dockerfile
+    image: ghcr.io/veraulitinaYa/film-nginx:latest
     container_name: film-nginx
     ports:
       - "80:80"
