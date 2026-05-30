@@ -35,14 +35,14 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ghcr.io/<github_username>/film-backend:latest
+          tags: ghcr.io/veraulitinaYa/film-backend:latest
 
       - name: Build & Push Frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ghcr.io/<github_username>/film-frontend:latest
+          tags: ghcr.io/veraulitinaYa/film-frontend:latest
 
       - name: Build & Push Nginx
         uses: docker/build-push-action@v5
@@ -50,4 +50,4 @@ jobs:
           context: .
           file: ./nginx/Dockerfile
           push: true
-          tags: ghcr.io/<github_username>/film-nginx:latest
+          tags: ghcr.io/veraulitinaYa/film-nginx:latest
