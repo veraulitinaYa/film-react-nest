@@ -16,3 +16,5 @@ FROM nginx:alpine
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
+
+COPY backend/public/content/afisha /usr/share/nginx/html/content/afisha

@@ -19,6 +19,8 @@ COPY package*.json ./
 RUN npm install --omit=dev
 
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/public ./public
+COPY --from=build /app/test ./test
 
 EXPOSE 3000
 
