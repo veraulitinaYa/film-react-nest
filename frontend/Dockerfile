@@ -7,6 +7,12 @@ RUN npm install
 
 COPY . .
 
+ARG VITE_API_URL=/api
+ARG VITE_CDN_URL=/content/afisha
+
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_CDN_URL=$VITE_CDN_URL
+
 RUN npm run build
 
 
