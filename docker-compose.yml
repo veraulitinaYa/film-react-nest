@@ -1,21 +1,52 @@
-version: '3.9'
-
 services:
   postgres:
     image: postgres:16
-    container_name: postgres_container
-    restart: always
-
-    environment:
-      POSTGRES_USER: exampleuser
-      POSTGRES_PASSWORD: examplepassword
-      POSTGRES_DB: exampledb
-
+    container_name: film-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "5432:5432"
-
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./backend/test:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exampleuser"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-volumes:
-  postgres_data:
+  backend:
+    build: ./backend
+    image: ghcr.io/veraulitinaya/film-backend:latest
+    container_name: film-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    image: ghcr.io/veraulitinaya/film-frontend:latest
+    container_name: film-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    image: ghcr.io/veraulitinaya/film-nginx:latest
+    container_name: film-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend/public/content/afisha:/usr/share/nginx/html/content/afisha:ro
+    depends_on:
+      - backend
+      - frontend
