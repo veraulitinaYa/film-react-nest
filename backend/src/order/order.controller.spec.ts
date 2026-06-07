@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
+import { CreateOrderDto } from './dto/order.dto';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -30,7 +31,7 @@ describe('OrderController', () => {
 
   describe('create', () => {
     it('should call service with dto and return result', async () => {
-      const dto = {
+      const dto: CreateOrderDto = {
         email: 'test@mail.com',
         phone: '+123',
         tickets: [],
@@ -40,7 +41,7 @@ describe('OrderController', () => {
 
       mockOrderService.create.mockResolvedValue(resultMock);
 
-      const result = await controller.create(dto as any);
+      const result = await controller.create(dto);
 
       expect(result).toEqual(resultMock);
       expect(mockOrderService.create).toHaveBeenCalledWith(dto);
